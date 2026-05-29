@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Debate – DebateHub</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  <style>
+    /* ── Page-specific styles ── */
+    .create-layout {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-md);
+    }
+    .page-heading {
+      margin-bottom: var(--space-xl);
+    }
+    .page-heading h1 {
+      font-size: 2rem;
+      font-family: var(--font-heading);
+    }
+    .page-heading p {
+      color: var(--text-secondary);
+      margin-top: var(--space-xs);
+    }
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ── Image upload zone ── */
+    .image-upload-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--border-radius);
+      padding: var(--space-xl);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition-base), background var(--transition-base);
+      position: relative;
+    }
+    .image-upload-zone:hover,
+    .image-upload-zone.dragover {
+      border-color: var(--brand-primary);
+      background: rgba(92, 107, 192, 0.04);
+    }
+    .image-upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-icon  { font-size: 2.5rem; margin-bottom: var(--space-sm); }
+    .upload-text  { font-weight: 600; color: var(--text-secondary); }
+    .upload-hint  { font-size: var(--font-size-sm); color: var(--text-muted); margin-top: 4px; }
+    .image-preview {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: var(--border-radius-sm);
+      margin-top: var(--space-sm);
+      display: none;
+    }
+
+    /* ── Timer ── */
+    .timer-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-sm);
+    }
+    .timer-option {
+      padding: 10px;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      text-align: center;
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    .timer-option:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .timer-option.selected { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
+
+    /* ── Upload progress ── */
+    .upload-progress {
+      display: none;
+      margin-top: var(--space-sm);
+    }
+    .upload-progress .progress-bar-track { height: 6px; }
+
+    /* ── Preview card ── */
+    .preview-section { margin-top: var(--space-xl); }
+    .debate-preview-card {
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+    .debate-preview-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .debate-preview-body { padding: var(--space-md); }
+    .debate-preview-body h3 { font-size: 1.1rem; margin-bottom: var(--space-xs); }
+    .debate-preview-body p  { color: var(--text-secondary); font-size: var(--font-size-sm); }
+
+    @media (max-width: 600px) {
+      .timer-options { grid-template-columns: repeat(2, 1fr); }
+      .form-card     { padding: var(--space-lg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="app-layout">
+
+  <!-- Sidebar (shared) -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="home.html" class="sidebar-logo">
+      <span class="sidebar-logo-icon">🗳️</span>
+      <span class="sidebar-logo-text">DebateHub</span>
+    </a>
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Discover</span>
+      <a href="home.html"          class="sidebar-link"><span class="link-icon">🏠</span> Home</a>
+      <a href="trending.html"      class="sidebar-link"><span class="link-icon">🔥</span> Trending</a>
+      <span class="sidebar-section-label">Debate</span>
+      <a href="create_debate.html" class="sidebar-link active"><span class="link-icon">➕</span> Create Debate</a>
+      <a href="my-debates.html"    class="sidebar-link"><span class="link-icon">📋</span> My Debates</a>
+      <a href="bookmarks.html"     class="sidebar-link"><span class="link-icon">🔖</span> Bookmarks</a>
+      <span class="sidebar-section-label">Account</span>
+      <a href="profile.html"       class="sidebar-link"><span class="link-icon">👤</span> Profile</a>
+      <a href="dashboard.html"     class="sidebar-link"><span class="link-icon">📊</span> Dashboard</a>
+    </nav>
+    <div class="sidebar-user" id="sidebarUser">
+      <div class="avatar avatar-sm" id="sidebarAvatar">?</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Loading…</div>
+        <div class="sidebar-user-role">Member</div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="display:flex; flex-direction:column; min-width:0;">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open menu">☰</button>
+      <h1 style="font-size:1.1rem; font-weight:700; color:var(--text-primary);">Create Debate</h1>
+      <div class="topbar-actions" style="margin-left:auto; display:flex; gap:8px;">
+        <button class="theme-toggle" id="themeToggle">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- Form -->
+    <main class="main-content">
+      <div class="create-layout">
+
+        <div class="page-heading">
+          <h1>Create a New Debate 💬</h1>
+          <p>Start a public discussion and invite the community to vote.</p>
+        </div>
+
+        <div class="form-card">
+          <form id="debateForm" novalidate>
+
+            <!-- Title -->
+            <div class="form-group">
+              <label class="form-label" for="title">Debate Title *</label>
+              <input type="text" id="title" class="form-control" placeholder="e.g. Should AI be regulated by governments?" maxlength="120" required />
+              <span class="form-error" id="titleError"></span>
+              <div style="text-align:right; font-size:0.75rem; color:var(--text-muted); margin-top:2px;"><span id="titleCount">0</span>/120</div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+              <label class="form-label" for="description">Description *</label>
+              <textarea id="description" class="form-control" placeholder="Provide context, background, and details for your debate…" rows="5" maxlength="1000" required></textarea>
+              <span class="form-error" id="descError"></span>
+              <div style="text-align:right; font-size:0.75rem; color:var(--text-muted); margin-top:2px;"><span id="descCount">0</span>/1000</div>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+              <label class="form-label" for="category">Category *</label>
+              <select id="category" class="form-control" required>
+                <option value="" disabled selected>Select a category</option>
+                <option>Politics</option>
+                <option>Technology</option>
+                <option>Science</option>
+                <option>Education</option>
+                <option>Sports</option>
+                <option>Environment</option>
+                <option>Health</option>
+                <option>Society</option>
+                <option>Other</option>
+              </select>
+              <span class="form-error" id="categoryError"></span>
+            </div>
+
+            <!-- Debate Duration -->
+            <div class="form-group">
+              <label class="form-label">Debate Duration</label>
+              <div class="timer-options" id="timerOptions">
+                <div class="timer-option selected" data-hours="24">1 Day</div>
+                <div class="timer-option" data-hours="72">3 Days</div>
+                <div class="timer-option" data-hours="168">1 Week</div>
+                <div class="timer-option" data-hours="720">1 Month</div>
+              </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-group">
+              <label class="form-label">Cover Image (optional)</label>
+              <div class="image-upload-zone" id="imageUploadZone">
+                <input type="file" id="imageFile" accept="image/*" aria-label="Upload cover image" />
+                <div class="upload-icon">🖼️</div>
+                <div class="upload-text">Click or drag to upload</div>
+                <div class="upload-hint">PNG, JPG, WEBP · Max 2MB</div>
+                <img id="imagePreview" class="image-preview" alt="Preview" />
+              </div>
+              <!-- Upload progress bar -->
+              <div class="upload-progress" id="uploadProgressWrap">
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill yes" id="uploadProgressBar" style="width:0%"></div>
+                </div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;" id="uploadProgressLabel">Uploading…</div>
+              </div>
+              <!-- OR image URL fallback -->
+              <div style="margin-top:var(--space-sm);">
+                <label class="form-label" for="imageURL" style="font-weight:500;">Or paste image URL</label>
+                <input type="url" id="imageURL" class="form-control" placeholder="https://example.com/image.jpg" />
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary btn-lg w-full" id="submitBtn" style="justify-content:center; margin-top:var(--space-md);">
+              <span id="submitBtnText">🚀 Publish Debate</span>
+              <span id="submitSpinner" class="spinner-sm" style="display:none;"></span>
+            </button>
+
+          </form>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="preview-section">
+          <h3 style="font-weight:700; margin-bottom:var(--space-md);">Live Preview</h3>
+          <div class="debate-preview-card" id="previewCard">
+            <img src="../assets/images/default.jpg" id="previewImg" alt="Preview cover" />
+            <div class="debate-preview-body">
+              <h3 id="previewTitle" style="color:var(--text-muted);">Your debate title will appear here</h3>
+              <p id="previewDesc" style="color:var(--text-muted);">Description will appear here…</p>
+              <span class="badge badge-success" id="previewCat" style="margin-top:var(--space-sm);">Category</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, collection, addDoc, serverTimestamp, doc, updateDoc, increment }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+  import { initTheme, toggleTheme, showToast } from "../assets/js/utils.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAGm7xBQ3BY-tUa0wKiyx9_xRtU_I-pphg",
+    authDomain: "online-voting-system-7ad10.firebaseapp.com",
+    projectId: "online-voting-system-7ad10",
+    storageBucket: "online-voting-system-7ad10.appspot.com",
+    messagingSenderId: "882341360975",
+    appId: "1:882341360975:web:0a6f2d5313d64fef2d013a"
+  };
+
+  const app     = initializeApp(firebaseConfig);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+
+  // Theme
+  const theme = initTheme();
+  document.getElementById("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const next = toggleTheme();
+    document.getElementById("themeIcon").textContent = next === "dark" ? "☀️" : "🌙";
+  });
+
+  // Sidebar
+  const sidebar = document.getElementById("sidebar");
+  document.getElementById("sidebarToggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+  document.getElementById("sidebarOverlay").addEventListener("click", () => sidebar.classList.remove("open"));
+
+  // Auth guard
+  let currentUser = null;
+  onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = "../index.html"; return; }
+    currentUser = user;
+    const name = user.displayName || user.email.split("@")[0];
+    document.getElementById("sidebarName").textContent = name;
+    const av = document.getElementById("sidebarAvatar");
+    if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}" alt="${name}" />`;
+    else av.textContent = name.charAt(0).toUpperCase();
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "../index.html";
+  });
+
+  // ── Char counters ──
+  ["title", "description"].forEach(id => {
+    const input   = document.getElementById(id);
+    const counter = document.getElementById(id === "title" ? "titleCount" : "descCount");
+    input.addEventListener("input", () => {
+      counter.textContent = input.value.length;
+      updatePreview();
+    });
+  });
+
+  // ── Timer options ──
+  let selectedHours = 24;
+  document.getElementById("timerOptions").addEventListener("click", (e) => {
+    if (!e.target.matches(".timer-option")) return;
+    document.querySelectorAll(".timer-option").forEach(o => o.classList.remove("selected"));
+    e.target.classList.add("selected");
+    selectedHours = parseInt(e.target.dataset.hours);
+  });
+
+  // ── Image upload zone ──
+  const zone    = document.getElementById("imageUploadZone");
+  const fileInput = document.getElementById("imageFile");
+  const preview = document.getElementById("imagePreview");
+  let selectedFile = null;
+
+  // Drag and drop
+  zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("dragover"); });
+  zone.addEventListener("dragleave", () => zone.classList.remove("dragover"));
+  zone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    zone.classList.remove("dragover");
+    const file = e.dataTransfer.files[0];
+    if (file) handleImageFile(file);
+  });
+
+  fileInput.addEventListener("change", (e) => {
+    if (e.target.files[0]) handleImageFile(e.target.files[0]);
+  });
+
+  function handleImageFile(file) {
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("Image must be under 2MB", "error");
+      return;
+    }
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+      preview.style.display = "block";
+      document.getElementById("previewImg").src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ── URL preview update ──
+  document.getElementById("imageURL").addEventListener("input", (e) => {
+    const url = e.target.value.trim();
+    if (url) document.getElementById("previewImg").src = url;
+    updatePreview();
+  });
+
+  // ── Live preview update ──
+  document.getElementById("category").addEventListener("change", updatePreview);
+
+  function updatePreview() {
+    const title = document.getElementById("title").value || "Your debate title will appear here";
+    const desc  = document.getElementById("description").value || "Description will appear here…";
+    const cat   = document.getElementById("category").value;
+
+    document.getElementById("previewTitle").textContent = title;
+    document.getElementById("previewTitle").style.color = title === "Your debate title will appear here" ? "var(--text-muted)" : "var(--text-primary)";
+    document.getElementById("previewDesc").textContent  = desc;
+    document.getElementById("previewCat").textContent   = cat || "Category";
+  }
+
+  // ── Upload image to Firebase Storage ──
+  async function uploadImage(file, debateId) {
+    const storageRef = ref(storage, `debate-images/${debateId}/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    const progressWrap = document.getElementById("uploadProgressWrap");
+    const progressBar  = document.getElementById("uploadProgressBar");
+    const progressLabel = document.getElementById("uploadProgressLabel");
+
+    progressWrap.style.display = "block";
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on("state_changed",
+        (snap) => {
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+          progressBar.style.width = pct + "%";
+          progressLabel.textContent = `Uploading… ${pct}%`;
+        },
+        (err) => { reject(err); },
+        async () => {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          progressLabel.textContent = "Upload complete ✅";
+          resolve(url);
+        }
+      );
+    });
+  }
+
+  // ── Submit form ──
+  document.getElementById("debateForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    // Validate
+    let valid = true;
+    const title    = document.getElementById("title").value.trim();
+    const desc     = document.getElementById("description").value.trim();
+    const category = document.getElementById("category").value;
+
+    if (!title) { document.getElementById("titleError").textContent = "Title is required."; valid = false; }
+    else         { document.getElementById("titleError").textContent = ""; }
+
+    if (desc.length < 20) { document.getElementById("descError").textContent = "Description must be at least 20 characters."; valid = false; }
+    else                   { document.getElementById("descError").textContent = ""; }
+
+    if (!category) { document.getElementById("categoryError").textContent = "Please select a category."; valid = false; }
+    else            { document.getElementById("categoryError").textContent = ""; }
+
+    if (!valid) return;
+
+    // Loading state
+    const btn    = document.getElementById("submitBtn");
+    const btnTxt = document.getElementById("submitBtnText");
+    const spin   = document.getElementById("submitSpinner");
+    btn.disabled = true;
+    btnTxt.textContent = "Publishing…";
+    spin.style.display = "inline-block";
+
+    try {
+      // Calculate end time
+      const now     = Date.now();
+      const endsAt  = new Date(now + selectedHours * 3600 * 1000);
+
+      // Create the debate doc first
+      const debateData = {
+        title,
+        description: desc,
+        category,
+        imageURL:    document.getElementById("imageURL").value.trim() || null,
+        createdBy:   currentUser.uid,
+        createdByName: currentUser.displayName || currentUser.email,
+        createdAt:   serverTimestamp(),
+        endsAt:      endsAt,
+        status:      "active",
+        yesVotes:    0,
+        noVotes:     0,
+        views:       0,
+        commentCount: 0,
+        voters:      []   // array of uids who voted
+      };
+
+      const docRef = await addDoc(collection(db, "debates"), debateData);
+
+      // Upload image if selected
+      if (selectedFile) {
+        const url = await uploadImage(selectedFile, docRef.id);
+        await updateDoc(doc(db, "debates", docRef.id), { imageURL: url });
+      }
+
+      // Increment user's debate count
+      try {
+        await updateDoc(doc(db, "users", currentUser.uid), {
+          debatesCreated: increment(1)
+        });
+      } catch (_) {}
+
+      showToast("Debate published successfully! 🎉", "success");
+      setTimeout(() => window.location.href = `debate.html?id=${docRef.id}`, 1000);
+
+    } catch (err) {
+      console.error(err);
+      showToast("Failed to create debate: " + err.message, "error");
+    } finally {
+      btn.disabled = false;
+      btnTxt.textContent = "🚀 Publish Debate";
+      spin.style.display = "none";
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Debate – DebateHub</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  <style>
+    .debate-detail-layout {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: var(--space-xl) var(--space-md);
+    }
+    .debate-cover {
+      width: 100%;
+      height: 340px;
+      object-fit: cover;
+      border-radius: var(--border-radius-lg);
+      margin-bottom: var(--space-xl);
+      background: var(--bg-input);
+    }
+    .debate-meta-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-sm);
+    }
+    .debate-author {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+
+    /* ── Countdown ── */
+    .countdown-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: var(--space-md) var(--space-lg);
+      display: flex;
+      gap: var(--space-lg);
+      justify-content: center;
+      text-align: center;
+      margin: var(--space-lg) 0;
+    }
+    .countdown-unit { display: flex; flex-direction: column; gap: 2px; }
+    .countdown-value { font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--brand-primary); }
+    .countdown-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 600; }
+
+    /* ── Vote section ── */
+    .vote-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-xl);
+      margin: var(--space-xl) 0;
+    }
+    .vote-panel h2 {
+      font-size: 1.3rem;
+      margin-bottom: var(--space-lg);
+    }
+    .vote-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .vote-btn {
+      padding: 18px;
+      border: 2px solid transparent;
+      border-radius: var(--border-radius);
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-heading);
+    }
+    .vote-btn.yes {
+      background: linear-gradient(135deg, rgba(38,166,154,0.1), rgba(38,166,154,0.05));
+      border-color: #26a69a;
+      color: #00695c;
+    }
+    .vote-btn.no {
+      background: linear-gradient(135deg, rgba(239,83,80,0.1), rgba(239,83,80,0.05));
+      border-color: #ef5350;
+      color: #b71c1c;
+    }
+    .vote-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .vote-btn.selected.yes { background: #26a69a; color: #fff; }
+    .vote-btn.selected.no  { background: #ef5350; color: #fff; }
+    .vote-btn:disabled { opacity: 0.55; pointer-events: none; }
+    .vote-emoji { font-size: 2rem; }
+    .vote-btn-sub { font-size: 0.8rem; font-weight: 500; opacity: 0.8; }
+
+    /* ── Results ── */
+    .results-wrap { display: flex; flex-direction: column; gap: var(--space-md); }
+    .result-row   { display: flex; flex-direction: column; gap: 4px; }
+    .result-label { display: flex; justify-content: space-between; font-size: var(--font-size-sm); font-weight: 700; }
+    .result-label .pct { font-size: 1.1rem; }
+
+    /* ── Comments ── */
+    .comments-section { margin-top: var(--space-xl); }
+    .comments-section h2 { font-size: 1.3rem; margin-bottom: var(--space-lg); }
+
+    .comment-form-row {
+      display: flex;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xl);
+      align-items: flex-start;
+    }
+    .comment-form-row textarea {
+      flex: 1;
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    .comment-list { display: flex; flex-direction: column; gap: var(--space-md); }
+
+    .comment-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: var(--space-md);
+    }
+    .comment-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+    }
+    .comment-author { font-weight: 600; font-size: 0.9rem; }
+    .comment-time   { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; }
+    .comment-text   { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+    .comment-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); }
+    .comment-action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: var(--font-base);
+      transition: all var(--transition-fast);
+    }
+    .comment-action-btn:hover { background: var(--bg-input); color: var(--text-primary); }
+
+    /* ── Share bar ── */
+    .share-bar {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+      flex-wrap: wrap;
+      padding: var(--space-md);
+      background: var(--bg-input);
+      border-radius: var(--border-radius);
+      margin-bottom: var(--space-xl);
+    }
+    .share-bar span { font-weight: 600; font-size: var(--font-size-sm); color: var(--text-secondary); }
+
+    @media (max-width: 600px) {
+      .debate-cover    { height: 200px; }
+      .vote-buttons    { grid-template-columns: 1fr; }
+      .countdown-value { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="home.html" class="sidebar-logo">
+      <span class="sidebar-logo-icon">🗳️</span>
+      <span class="sidebar-logo-text">DebateHub</span>
+    </a>
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Discover</span>
+      <a href="home.html"          class="sidebar-link"><span class="link-icon">🏠</span> Home</a>
+      <a href="trending.html"      class="sidebar-link"><span class="link-icon">🔥</span> Trending</a>
+      <span class="sidebar-section-label">Debate</span>
+      <a href="create_debate.html" class="sidebar-link"><span class="link-icon">➕</span> Create Debate</a>
+      <a href="my-debates.html"    class="sidebar-link"><span class="link-icon">📋</span> My Debates</a>
+      <a href="bookmarks.html"     class="sidebar-link"><span class="link-icon">🔖</span> Bookmarks</a>
+      <span class="sidebar-section-label">Account</span>
+      <a href="profile.html"       class="sidebar-link"><span class="link-icon">👤</span> Profile</a>
+      <a href="dashboard.html"     class="sidebar-link"><span class="link-icon">📊</span> Dashboard</a>
+    </nav>
+    <div class="sidebar-user" id="sidebarUser">
+      <div class="avatar avatar-sm" id="sidebarAvatar">?</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Loading…</div>
+        <div class="sidebar-user-role">Member</div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="display:flex; flex-direction:column; min-width:0;">
+
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open menu">☰</button>
+      <a href="home.html" class="btn btn-ghost btn-sm">← Back</a>
+      <div class="topbar-actions" style="margin-left:auto; display:flex; gap:8px;">
+        <button class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span></button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="main-content" id="mainContent">
+
+      <!-- Loading state -->
+      <div id="loadingState" style="display:flex; justify-content:center; align-items:center; min-height:300px;">
+        <div class="spinner-ring" style="width:40px;height:40px;border-width:4px;border-color:var(--border-color);border-top-color:var(--brand-primary);"></div>
+      </div>
+
+      <!-- Debate content (hidden until loaded) -->
+      <div id="debateContent" style="display:none;">
+        <div class="debate-detail-layout">
+
+          <!-- Cover image -->
+          <img id="debateCover" class="debate-cover" src="" alt="Debate cover" />
+
+          <!-- Heading + meta -->
+          <div class="debate-meta-row">
+            <span class="badge" id="debateCategory"></span>
+            <span class="badge" id="debateStatusBadge"></span>
+          </div>
+          <h1 id="debateTitle" style="font-size:2rem; font-family:var(--font-heading); margin-bottom:var(--space-md);"></h1>
+
+          <div class="debate-author">
+            <div class="avatar avatar-sm" id="authorAvatar">?</div>
+            <span id="authorName"></span>
+            <span style="color:var(--border-color);">•</span>
+            <span id="debateTime"></span>
+          </div>
+
+          <!-- Description -->
+          <div id="debateDesc" style="margin-top:var(--space-lg); color:var(--text-secondary); line-height:1.75; font-size:1.05rem;"></div>
+
+          <!-- Countdown timer -->
+          <div id="countdownSection">
+            <h3 style="margin:var(--space-xl) 0 var(--space-md); font-weight:700;">⏱️ Time Remaining</h3>
+            <div class="countdown-box" id="countdownBox">
+              <div class="countdown-unit"><div class="countdown-value" id="cdDays">00</div><div class="countdown-label">Days</div></div>
+              <div class="countdown-unit"><div class="countdown-value" id="cdHours">00</div><div class="countdown-label">Hours</div></div>
+              <div class="countdown-unit"><div class="countdown-value" id="cdMins">00</div><div class="countdown-label">Minutes</div></div>
+              <div class="countdown-unit"><div class="countdown-value" id="cdSecs">00</div><div class="countdown-label">Seconds</div></div>
+            </div>
+          </div>
+
+          <!-- Vote panel -->
+          <div class="vote-panel">
+            <h2>🗳️ Cast Your Vote</h2>
+
+            <div class="vote-buttons" id="voteButtons">
+              <button class="vote-btn yes" id="voteYesBtn">
+                <span class="vote-emoji">✅</span>
+                <span>YES – I Agree</span>
+                <span class="vote-btn-sub" id="yesCount">0 votes</span>
+              </button>
+              <button class="vote-btn no" id="voteNoBtn">
+                <span class="vote-emoji">❌</span>
+                <span>NO – I Disagree</span>
+                <span class="vote-btn-sub" id="noCount">0 votes</span>
+              </button>
+            </div>
+
+            <!-- Vote message -->
+            <div id="voteMessage" style="text-align:center; margin-bottom:var(--space-lg); font-weight:600; color:var(--text-secondary); display:none;"></div>
+
+            <!-- Results -->
+            <div class="results-wrap">
+              <div class="result-row">
+                <div class="result-label" style="color:#00695c;">
+                  <span>✅ Yes</span>
+                  <span class="pct" id="yesPct">50%</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill yes" id="yesBar" style="width:50%"></div>
+                </div>
+              </div>
+              <div class="result-row">
+                <div class="result-label" style="color:#b71c1c;">
+                  <span>❌ No</span>
+                  <span class="pct" id="noPct">50%</span>
+                </div>
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill no" id="noBar" style="width:50%"></div>
+                </div>
+              </div>
+              <div style="text-align:center; color:var(--text-muted); font-size:var(--font-size-sm); margin-top:var(--space-sm);">
+                Total: <strong id="totalVoteCount">0</strong> votes
+              </div>
+            </div>
+          </div>
+
+          <!-- Share bar -->
+          <div class="share-bar">
+            <span>Share this debate:</span>
+            <button class="btn btn-ghost btn-sm" id="copyLinkBtn">🔗 Copy Link</button>
+            <a id="twitterShare" href="#" target="_blank" class="btn btn-ghost btn-sm">🐦 Twitter</a>
+          </div>
+
+          <!-- Comments -->
+          <div class="comments-section">
+            <h2>💬 Comments (<span id="commentCount">0</span>)</h2>
+
+            <!-- Add comment -->
+            <div class="comment-form-row" id="commentFormRow">
+              <div class="avatar avatar-sm" id="commentAvatar">?</div>
+              <textarea class="form-control" id="commentInput" placeholder="Share your thoughts on this debate…" rows="3" maxlength="500"></textarea>
+              <button class="btn btn-primary" id="postCommentBtn" style="flex-shrink:0;">Post</button>
+            </div>
+
+            <!-- Comment list -->
+            <div class="comment-list" id="commentList">
+              <div style="text-align:center; padding:var(--space-xl); color:var(--text-muted);">Loading comments…</div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Not found state -->
+      <div id="notFoundState" style="display:none;">
+        <div class="empty-state">
+          <span class="empty-state-icon">🔍</span>
+          <h3>Debate not found</h3>
+          <p>The debate you are looking for does not exist or was removed.</p>
+          <a href="home.html" class="btn btn-primary">Go to Home</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, doc, onSnapshot, updateDoc, increment,
+           arrayUnion, collection, addDoc, query, orderBy, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { initTheme, toggleTheme, showToast, getVotePercents, timeAgo }
+    from "../assets/js/utils.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAGm7xBQ3BY-tUa0wKiyx9_xRtU_I-pphg",
+    authDomain: "online-voting-system-7ad10.firebaseapp.com",
+    projectId: "online-voting-system-7ad10",
+    storageBucket: "online-voting-system-7ad10.appspot.com",
+    messagingSenderId: "882341360975",
+    appId: "1:882341360975:web:0a6f2d5313d64fef2d013a"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // Theme
+  const theme = initTheme();
+  document.getElementById("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const next = toggleTheme();
+    document.getElementById("themeIcon").textContent = next === "dark" ? "☀️" : "🌙";
+  });
+
+  // Sidebar
+  const sidebar = document.getElementById("sidebar");
+  document.getElementById("sidebarToggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+  document.getElementById("sidebarOverlay").addEventListener("click", () => sidebar.classList.remove("open"));
+
+  // Get debate ID from URL
+  const params  = new URLSearchParams(window.location.search);
+  const debateId = params.get("id");
+
+  if (!debateId) {
+    document.getElementById("loadingState").style.display  = "none";
+    document.getElementById("notFoundState").style.display = "flex";
+  }
+
+  let currentUser    = null;
+  let debateData     = null;
+  let countdownTimer = null;
+
+  // Auth guard — preserve the full debate URL so login can redirect back
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      // Encode current page URL so login.html can redirect back here after sign-in
+      const returnTo = encodeURIComponent(window.location.href);
+      window.location.href = `../index.html?returnTo=${returnTo}`;
+      return;
+    }
+    currentUser = user;
+
+    const name = user.displayName || user.email.split("@")[0];
+    document.getElementById("sidebarName").textContent = name;
+    const av = document.getElementById("sidebarAvatar");
+    if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}" alt="${name}" />`;
+    else av.textContent = name.charAt(0).toUpperCase();
+
+    // Comment avatar
+    const cav = document.getElementById("commentAvatar");
+    if (user.photoURL) cav.innerHTML = `<img src="${user.photoURL}" alt="${name}" />`;
+    else cav.textContent = name.charAt(0).toUpperCase();
+
+    if (debateId) loadDebate();
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "../index.html";
+  });
+
+  // ── Load debate (real-time) ──
+  function loadDebate() {
+    const debateRef = doc(db, "debates", debateId);
+
+    onSnapshot(debateRef, async (snap) => {
+      if (!snap.exists()) {
+        document.getElementById("loadingState").style.display  = "none";
+        document.getElementById("notFoundState").style.display = "flex";
+        return;
+      }
+
+      debateData = { id: snap.id, ...snap.data() };
+      renderDebate(debateData);
+
+      document.getElementById("loadingState").style.display  = "none";
+      document.getElementById("debateContent").style.display = "block";
+
+      // Increment view count (fire & forget)
+      updateDoc(debateRef, { views: increment(1) }).catch(() => {});
+    });
+  }
+
+  // ── Render debate ──
+  function renderDebate(d) {
+    // Cover
+    const coverEl = document.getElementById("debateCover");
+    coverEl.src = d.imageURL || "../assets/images/default.jpg";
+    document.title = `${d.title} – DebateHub`;
+
+    // Badges
+    const catEl = document.getElementById("debateCategory");
+    catEl.textContent = d.category || "";
+    catEl.className   = `badge badge-info`;
+
+    const statusEl = document.getElementById("debateStatusBadge");
+    statusEl.textContent = d.status === "active" ? "🟢 Active" : "🔴 Closed";
+    statusEl.className   = `badge ${d.status === "active" ? "badge-success" : "badge-error"}`;
+
+    // Title & desc
+    document.getElementById("debateTitle").textContent = d.title || "Untitled";
+    document.getElementById("debateDesc").textContent  = d.description || "";
+    document.getElementById("debateTime").textContent  = timeAgo(d.createdAt);
+
+    // Author
+    const authorName = d.createdByName || "Anonymous";
+    document.getElementById("authorName").textContent  = authorName;
+    document.getElementById("authorAvatar").textContent = authorName.charAt(0).toUpperCase();
+
+    // Votes
+    updateVoteDisplay(d);
+
+    // Countdown
+    if (d.endsAt) {
+      startCountdown(d.endsAt.toDate ? d.endsAt.toDate() : new Date(d.endsAt));
+    }
+
+    // Share
+    const url = window.location.href;
+    document.getElementById("copyLinkBtn").onclick = async () => {
+      await navigator.clipboard.writeText(url).catch(() => {});
+      showToast("Link copied!", "success");
+    };
+    document.getElementById("twitterShare").href =
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(d.title)}&url=${encodeURIComponent(url)}`;
+
+    // Load comments
+    loadComments();
+  }
+
+  // ── Vote display ──
+  function updateVoteDisplay(d) {
+    const yes   = d.yesVotes || 0;
+    const no    = d.noVotes  || 0;
+    const { yes: yesPct, no: noPct, total } = getVotePercents(yes, no);
+
+    document.getElementById("yesCount").textContent   = `${yes} vote${yes !== 1 ? "s" : ""}`;
+    document.getElementById("noCount").textContent    = `${no} vote${no !== 1 ? "s" : ""}`;
+    document.getElementById("yesPct").textContent     = `${yesPct}%`;
+    document.getElementById("noPct").textContent      = `${noPct}%`;
+    document.getElementById("yesBar").style.width     = `${yesPct}%`;
+    document.getElementById("noBar").style.width      = `${noPct}%`;
+    document.getElementById("totalVoteCount").textContent = total;
+
+    // Already voted?
+    const hasVoted  = d.voters?.includes(currentUser?.uid);
+    const myVote    = d.voteMap?.[currentUser?.uid];
+    const isClosed  = d.status === "closed";
+
+    const voteMsg = document.getElementById("voteMessage");
+    if (isClosed) {
+      voteMsg.textContent = "⏰ Voting has closed for this debate.";
+      voteMsg.style.display = "block";
+      document.getElementById("voteYesBtn").disabled = true;
+      document.getElementById("voteNoBtn").disabled  = true;
+    } else if (hasVoted) {
+      voteMsg.textContent = `You voted: ${myVote === "yes" ? "✅ YES" : "❌ NO"}. Voting is restricted to one vote per user.`;
+      voteMsg.style.display = "block";
+      document.getElementById("voteYesBtn").disabled = true;
+      document.getElementById("voteNoBtn").disabled  = true;
+      document.getElementById(`vote${myVote === "yes" ? "Yes" : "No"}Btn`).classList.add("selected");
+    }
+  }
+
+  // ── Vote handlers ──
+  document.getElementById("voteYesBtn").addEventListener("click", () => castVote("yes"));
+  document.getElementById("voteNoBtn").addEventListener("click",  () => castVote("no"));
+
+  async function castVote(choice) {
+    if (!currentUser || !debateId) return;
+    const debateRef = doc(db, "debates", debateId);
+
+    try {
+      await updateDoc(debateRef, {
+        [`${choice}Votes`]:             increment(1),
+        voters:                          arrayUnion(currentUser.uid),
+        [`voteMap.${currentUser.uid}`]: choice
+      });
+
+      // Track user's vote count
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        votesCast: increment(1)
+      }).catch(() => {});
+
+      showToast(`You voted ${choice === "yes" ? "✅ YES" : "❌ NO"}!`, "success");
+    } catch (err) {
+      showToast("Failed to cast vote: " + err.message, "error");
+    }
+  }
+
+  // ── Countdown timer ──
+  function startCountdown(endDate) {
+    if (countdownTimer) clearInterval(countdownTimer);
+
+    function tick() {
+      const now   = Date.now();
+      const diff  = endDate.getTime() - now;
+
+      if (diff <= 0) {
+        clearInterval(countdownTimer);
+        document.getElementById("cdDays").textContent  = "00";
+        document.getElementById("cdHours").textContent = "00";
+        document.getElementById("cdMins").textContent  = "00";
+        document.getElementById("cdSecs").textContent  = "00";
+        return;
+      }
+
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000)  / 60000);
+      const secs  = Math.floor((diff % 60000)    / 1000);
+
+      document.getElementById("cdDays").textContent  = String(days).padStart(2,"0");
+      document.getElementById("cdHours").textContent = String(hours).padStart(2,"0");
+      document.getElementById("cdMins").textContent  = String(mins).padStart(2,"0");
+      document.getElementById("cdSecs").textContent  = String(secs).padStart(2,"0");
+    }
+
+    tick();
+    countdownTimer = setInterval(tick, 1000);
+  }
+
+  // ── Comments ──
+  function loadComments() {
+    const q = query(
+      collection(db, "debates", debateId, "comments"),
+      orderBy("createdAt", "desc")
+    );
+
+    onSnapshot(q, (snap) => {
+      const comments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      document.getElementById("commentCount").textContent = comments.length;
+      renderComments(comments);
+    });
+  }
+
+  function renderComments(comments) {
+    const list = document.getElementById("commentList");
+    if (!comments.length) {
+      list.innerHTML = `<div class="empty-state"><span class="empty-state-icon">💬</span><h3>No comments yet</h3><p>Be the first to share your thoughts!</p></div>`;
+      return;
+    }
+
+    list.innerHTML = comments.map(c => `
+      <div class="comment-item animate-in">
+        <div class="comment-header">
+          <div class="avatar avatar-sm">${(c.authorName || "?").charAt(0).toUpperCase()}</div>
+          <span class="comment-author">${c.authorName || "Anonymous"}</span>
+          <span class="comment-time">${timeAgo(c.createdAt)}</span>
+        </div>
+        <p class="comment-text">${c.text}</p>
+        <div class="comment-actions">
+          <button class="comment-action-btn">👍 ${c.likes || 0}</button>
+          <button class="comment-action-btn">Reply</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("postCommentBtn").addEventListener("click", async () => {
+    const input = document.getElementById("commentInput");
+    const text  = input.value.trim();
+    if (!text) { showToast("Comment cannot be empty", "warning"); return; }
+    if (!currentUser) return;
+
+    const btn = document.getElementById("postCommentBtn");
+    btn.disabled = true;
+    btn.textContent = "Posting…";
+
+    try {
+      await addDoc(collection(db, "debates", debateId, "comments"), {
+        text,
+        authorId:   currentUser.uid,
+        authorName: currentUser.displayName || currentUser.email.split("@")[0],
+        createdAt:  serverTimestamp(),
+        likes:      0
+      });
+
+      // Increment comment count
+      await updateDoc(doc(db, "debates", debateId), {
+        commentCount: increment(1)
+      }).catch(() => {});
+
+      input.value = "";
+      showToast("Comment posted!", "success");
+    } catch (err) {
+      showToast("Failed to post comment", "error");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Post";
+    }
+  });
+</script>
+
+</body>
+</html>

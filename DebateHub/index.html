@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In – DebateHub</title>
+  <meta name="description" content="Sign in to DebateHub – the platform where ideas clash and votes decide.">
+  <link rel="stylesheet" href="assets/css/global.css" />
+  <link rel="stylesheet" href="assets/css/auth.css" />
+</head>
+<body>
+
+<!-- Theme toggle (top-right corner) -->
+<div class="auth-theme-toggle">
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+    <span id="themeIcon">🌙</span>
+  </button>
+</div>
+
+<div class="auth-page">
+
+  <!-- ── LEFT HERO PANEL ── -->
+  <aside class="auth-hero" aria-hidden="true">
+    <div class="auth-hero-content">
+      <span class="auth-hero-logo">🗳️</span>
+      <h1>DebateHub</h1>
+      <p>Where ideas clash, arguments matter, and the community decides the truth.</p>
+      <ul class="auth-hero-features">
+        <li>Real-time voting with live results</li>
+        <li>Discuss any topic with verified users</li>
+        <li>Earn reputation through great arguments</li>
+        <li>Explore debates by category and trend</li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- ── RIGHT FORM PANEL ── -->
+  <main class="auth-form-panel">
+    <div class="auth-form-card">
+
+      <!-- Logo (shown on mobile when hero is hidden) -->
+      <a href="index.html" class="auth-logo-sm" aria-label="DebateHub home">
+        <span>🗳️</span> DebateHub
+      </a>
+
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your account to continue</p>
+
+      <!-- Error banner (hidden by default) -->
+      <div id="errorBanner" class="form-error" style="display:none; margin-bottom:var(--space-md); padding:10px 14px; background:rgba(239,83,80,0.1); border-radius:var(--border-radius-sm); border:1px solid rgba(239,83,80,0.3);" role="alert"></div>
+
+      <!-- Login form -->
+      <form class="auth-form" id="loginForm" novalidate>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email address</label>
+          <input type="email" id="email" class="form-control" placeholder="you@example.com" autocomplete="email" required aria-describedby="emailError" />
+          <span class="form-error" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="password-toggle-wrap">
+            <input type="password" id="password" class="form-control" placeholder="Enter your password" autocomplete="current-password" required aria-describedby="passwordError" />
+            <button type="button" class="password-toggle-btn" id="passwordToggle" aria-label="Show or hide password">👁️</button>
+          </div>
+          <span class="form-error" id="passwordError"></span>
+        </div>
+
+        <div class="forgot-row">
+          <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg auth-submit" id="loginBtn">
+          <span id="loginBtnText">Sign In</span>
+          <span id="loginSpinner" class="spinner-sm" style="display:none;" aria-hidden="true"></span>
+        </button>
+
+      </form>
+
+      <div class="divider">or continue with</div>
+
+      <!-- Google Sign-In -->
+      <button class="btn-google" id="googleLoginBtn" type="button">
+        <!-- Google SVG logo -->
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Continue with Google
+      </button>
+
+      <p class="auth-footer">
+        Don't have an account? <a href="pages/register.html">Create one free</a>
+      </p>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- ── FORGOT PASSWORD MODAL ── -->
+<div class="modal-backdrop" id="forgotModal" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title" id="forgotTitle">Reset Password</h2>
+      <button class="modal-close" id="forgotModalClose" aria-label="Close">✕</button>
+    </div>
+    <p style="color:var(--text-secondary); margin-bottom:var(--space-lg);">Enter your email address and we'll send you a link to reset your password.</p>
+    <div class="form-group">
+      <label class="form-label" for="resetEmail">Email address</label>
+      <input type="email" id="resetEmail" class="form-control" placeholder="you@example.com" />
+    </div>
+    <div id="resetMessage" style="display:none; margin-bottom:var(--space-md);"></div>
+    <button class="btn btn-primary w-full" id="sendResetBtn" style="justify-content:center;">
+      <span id="resetBtnText">Send Reset Email</span>
+      <span id="resetSpinner" class="spinner-sm" style="display:none;"></span>
+    </button>
+  </div>
+</div>
+
+<!-- ── FIREBASE + LOGIC ── -->
+<script type="module">
+  import { initializeApp }            from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { initTheme, toggleTheme, showToast } from "./assets/js/utils.js";
+
+  // ── Firebase init ──
+  const firebaseConfig = {
+    apiKey: "AIzaSyAGm7xBQ3BY-tUa0wKiyx9_xRtU_I-pphg",
+    authDomain: "online-voting-system-7ad10.firebaseapp.com",
+    projectId: "online-voting-system-7ad10",
+    storageBucket: "online-voting-system-7ad10.appspot.com",
+    messagingSenderId: "882341360975",
+    appId: "1:882341360975:web:0a6f2d5313d64fef2d013a"
+  };
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // ── Theme ──
+  const theme = initTheme();
+  document.getElementById("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const next = toggleTheme();
+    document.getElementById("themeIcon").textContent = next === "dark" ? "☀️" : "🌙";
+  });
+
+  // ── Resolve where to redirect after login ──
+  // Honours ?returnTo=<encoded-url> so shared debate links work correctly.
+  function getRedirectTarget() {
+    const params   = new URLSearchParams(window.location.search);
+    const returnTo = params.get("returnTo");
+    if (returnTo) {
+      try {
+        const decoded = decodeURIComponent(returnTo);
+        const url = new URL(decoded);
+        // Only follow same-origin URLs (security: prevent open-redirect)
+        if (url.origin === window.location.origin) return decoded;
+      } catch (_) {}
+    }
+    return "pages/home.html";
+  }
+
+  // ── Redirect if already logged in ──
+  onAuthStateChanged(auth, user => {
+    if (user) window.location.href = getRedirectTarget();
+  });
+
+  // ── Password toggle ──
+  document.getElementById("passwordToggle").addEventListener("click", function () {
+    const pw = document.getElementById("password");
+    const isText = pw.type === "text";
+    pw.type = isText ? "password" : "text";
+    this.textContent = isText ? "👁️" : "🙈";
+  });
+
+  // ── Validate email ──
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  // ── Show error banner ──
+  function showError(msg) {
+    const el = document.getElementById("errorBanner");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+  function hideError() {
+    document.getElementById("errorBanner").style.display = "none";
+  }
+
+  // ── Login form ──
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const email    = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    // Client-side validation
+    if (!validateEmail(email)) {
+      document.getElementById("emailError").textContent = "Enter a valid email address.";
+      return;
+    }
+    document.getElementById("emailError").textContent = "";
+    if (password.length < 6) {
+      document.getElementById("passwordError").textContent = "Password must be at least 6 characters.";
+      return;
+    }
+    document.getElementById("passwordError").textContent = "";
+
+    // Loading state
+    const btn    = document.getElementById("loginBtn");
+    const btnTxt = document.getElementById("loginBtnText");
+    const spinner = document.getElementById("loginSpinner");
+    btn.disabled = true;
+    btnTxt.textContent = "Signing in…";
+    spinner.style.display = "inline-block";
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      showToast("Signed in successfully! Redirecting…", "success");
+      setTimeout(() => window.location.href = getRedirectTarget(), 800);
+    } catch (err) {
+      // Map Firebase error codes to friendly messages
+      const messages = {
+        "auth/user-not-found":       "No account found with this email.",
+        "auth/wrong-password":       "Incorrect password. Please try again.",
+        "auth/invalid-email":        "Please enter a valid email address.",
+        "auth/too-many-requests":    "Too many failed attempts. Please try again later.",
+        "auth/invalid-credential":   "Invalid credentials. Check your email and password.",
+      };
+      showError(messages[err.code] || err.message);
+    } finally {
+      btn.disabled = false;
+      btnTxt.textContent = "Sign In";
+      spinner.style.display = "none";
+    }
+  });
+
+  // ── Google Sign-In ──
+  document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+    hideError();
+    try {
+      await signInWithPopup(auth, provider);
+      showToast("Signed in with Google!", "success");
+      setTimeout(() => window.location.href = getRedirectTarget(), 800);
+    } catch (err) {
+      if (err.code !== "auth/popup-closed-by-user") {
+        showError("Google sign-in failed: " + err.message);
+      }
+    }
+  });
+
+  // ── Forgot Password Modal ──
+  const modal = document.getElementById("forgotModal");
+
+  document.getElementById("forgotPasswordLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    modal.classList.add("open");
+    document.getElementById("resetEmail").focus();
+  });
+
+  document.getElementById("forgotModalClose").addEventListener("click", () => {
+    modal.classList.remove("open");
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.classList.remove("open");
+  });
+
+  document.getElementById("sendResetBtn").addEventListener("click", async () => {
+    const email = document.getElementById("resetEmail").value.trim();
+    const msg   = document.getElementById("resetMessage");
+    const btn   = document.getElementById("sendResetBtn");
+    const txt   = document.getElementById("resetBtnText");
+    const spin  = document.getElementById("resetSpinner");
+
+    if (!validateEmail(email)) {
+      msg.style.display = "block";
+      msg.style.color   = "var(--color-error)";
+      msg.textContent   = "Enter a valid email address.";
+      return;
+    }
+
+    btn.disabled = true;
+    txt.textContent = "Sending…";
+    spin.style.display = "inline-block";
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      msg.style.display = "block";
+      msg.style.color   = "var(--color-success)";
+      msg.textContent   = "✅ Password reset email sent! Check your inbox.";
+    } catch (err) {
+      msg.style.display = "block";
+      msg.style.color   = "var(--color-error)";
+      msg.textContent   = err.code === "auth/user-not-found"
+        ? "No account found with this email."
+        : "Failed to send reset email.";
+    } finally {
+      btn.disabled = false;
+      txt.textContent = "Send Reset Email";
+      spin.style.display = "none";
+    }
+  });
+</script>
+
+</body>
+</html>

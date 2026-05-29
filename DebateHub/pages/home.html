@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home – DebateHub</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+</head>
+<body>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+
+  <!-- ════════════════════ SIDEBAR ════════════════════ -->
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+
+    <a href="home.html" class="sidebar-logo">
+      <span class="sidebar-logo-icon">🗳️</span>
+      <span class="sidebar-logo-text">DebateHub</span>
+    </a>
+
+    <nav class="sidebar-nav" aria-label="Primary">
+      <span class="sidebar-section-label">Discover</span>
+      <a href="home.html"          class="sidebar-link active" data-page="home">
+        <span class="link-icon">🏠</span> Home
+      </a>
+      <a href="trending.html"      class="sidebar-link" data-page="trending">
+        <span class="link-icon">🔥</span> Trending
+      </a>
+
+      <span class="sidebar-section-label">Debate</span>
+      <a href="create_debate.html" class="sidebar-link" data-page="create">
+        <span class="link-icon">➕</span> Create Debate
+      </a>
+      <a href="my-debates.html"    class="sidebar-link" data-page="myDebates">
+        <span class="link-icon">📋</span> My Debates
+      </a>
+      <a href="bookmarks.html"     class="sidebar-link" data-page="bookmarks">
+        <span class="link-icon">🔖</span> Bookmarks
+      </a>
+
+      <span class="sidebar-section-label">Account</span>
+      <a href="profile.html"       class="sidebar-link" data-page="profile">
+        <span class="link-icon">👤</span> Profile
+      </a>
+      <a href="dashboard.html"     class="sidebar-link" data-page="dashboard">
+        <span class="link-icon">📊</span> Dashboard
+      </a>
+    </nav>
+
+    <!-- User section at bottom -->
+    <div class="sidebar-user" id="sidebarUser">
+      <div class="avatar avatar-sm" id="sidebarAvatar">?</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Loading…</div>
+        <div class="sidebar-user-role">Member</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ════════════════════ MAIN ════════════════════ -->
+  <div style="display:flex; flex-direction:column; min-width:0;">
+
+    <!-- Top Bar -->
+    <header class="topbar" role="banner">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open menu" aria-expanded="false">☰</button>
+
+      <div class="topbar-search" role="search">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="search" class="form-control" id="searchInput" placeholder="Search debates…" aria-label="Search debates" />
+      </div>
+
+      <div class="topbar-actions">
+        <a href="create_debate.html" class="btn btn-primary btn-sm" style="display:none;" id="createBtnTop">+ Create</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <span id="themeIcon">🌙</span>
+        </button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content" id="mainContent">
+
+      <!-- Stats banner -->
+      <div class="stats-banner" id="statsBanner">
+        <div class="stat-card">
+          <div class="stat-card-icon">🗳️</div>
+          <div class="stat-card-value" id="statTotalDebates">–</div>
+          <div class="stat-card-label">Total Debates</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">👥</div>
+          <div class="stat-card-value" id="statTotalVotes">–</div>
+          <div class="stat-card-label">Votes Cast</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">🔥</div>
+          <div class="stat-card-value" id="statActiveDebates">–</div>
+          <div class="stat-card-label">Active Now</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">🏆</div>
+          <div class="stat-card-value" id="statMyDebates">–</div>
+          <div class="stat-card-label">My Debates</div>
+        </div>
+      </div>
+
+      <!-- Section header + filters -->
+      <div class="section-header">
+        <h2 class="section-title">All Debates</h2>
+        <a href="create_debate.html" class="btn btn-primary btn-sm">+ New Debate</a>
+      </div>
+
+      <!-- Category filter chips -->
+      <div class="filter-bar" id="filterBar" role="group" aria-label="Filter by category">
+        <button class="filter-chip active" data-filter="all">All</button>
+        <button class="filter-chip" data-filter="Politics">Politics</button>
+        <button class="filter-chip" data-filter="Technology">Technology</button>
+        <button class="filter-chip" data-filter="Science">Science</button>
+        <button class="filter-chip" data-filter="Education">Education</button>
+        <button class="filter-chip" data-filter="Sports">Sports</button>
+        <button class="filter-chip" data-filter="Environment">Environment</button>
+        <button class="filter-chip" data-filter="Health">Health</button>
+        <button class="filter-chip" data-filter="Society">Society</button>
+      </div>
+
+      <!-- Sort bar -->
+      <div style="display:flex; align-items:center; gap:var(--space-sm); margin-bottom:var(--space-lg); flex-wrap:wrap;">
+        <span style="font-size:var(--font-size-sm); color:var(--text-muted); font-weight:600;">Sort by:</span>
+        <select class="form-control" id="sortSelect" style="width:auto; padding:6px 12px; border-radius:99px; font-size:var(--font-size-sm);">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="mostVotes">Most Votes</option>
+          <option value="trending">Trending</option>
+        </select>
+        <span style="margin-left:auto; font-size:var(--font-size-sm); color:var(--text-muted);" id="resultCount"></span>
+      </div>
+
+      <!-- Debate grid -->
+      <div class="debate-grid" id="debateGrid" aria-live="polite">
+        <!-- Skeleton loaders shown while fetching -->
+      </div>
+
+    </main>
+
+  </div><!-- end main wrapper -->
+
+</div><!-- end app-layout -->
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot,
+           doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { initTheme, toggleTheme, showToast, buildSkeletonCards,
+           getVotePercents, timeAgo, categoryColor, debounce }
+    from "../assets/js/utils.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAGm7xBQ3BY-tUa0wKiyx9_xRtU_I-pphg",
+    authDomain: "online-voting-system-7ad10.firebaseapp.com",
+    projectId: "online-voting-system-7ad10",
+    storageBucket: "online-voting-system-7ad10.appspot.com",
+    messagingSenderId: "882341360975",
+    appId: "1:882341360975:web:0a6f2d5313d64fef2d013a"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── Theme ──
+  const theme = initTheme();
+  document.getElementById("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const next = toggleTheme();
+    document.getElementById("themeIcon").textContent = next === "dark" ? "☀️" : "🌙";
+  });
+
+  // ── Sidebar toggle (mobile) ──
+  const sidebar      = document.getElementById("sidebar");
+  const overlay      = document.getElementById("sidebarOverlay");
+  const toggleBtn    = document.getElementById("sidebarToggle");
+
+  function openSidebar()  { sidebar.classList.add("open");  toggleBtn.setAttribute("aria-expanded","true"); }
+  function closeSidebar() { sidebar.classList.remove("open"); toggleBtn.setAttribute("aria-expanded","false"); }
+
+  toggleBtn.addEventListener("click", () => sidebar.classList.contains("open") ? closeSidebar() : openSidebar());
+  overlay.addEventListener("click", closeSidebar);
+
+  // ── State ──
+  let currentUser   = null;
+  let allDebates    = [];
+  let activeFilter  = "all";
+  let activeSort    = "newest";
+  let searchQuery   = "";
+  let userBookmarks = [];
+
+  // ── Auth Guard ──
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "../index.html"; return; }
+    currentUser = user;
+
+    // Populate sidebar user
+    const name = user.displayName || user.email.split("@")[0];
+    document.getElementById("sidebarName").textContent = name;
+    const avatarEl = document.getElementById("sidebarAvatar");
+    if (user.photoURL) {
+      avatarEl.innerHTML = `<img src="${user.photoURL}" alt="${name}" />`;
+    } else {
+      avatarEl.textContent = name.charAt(0).toUpperCase();
+    }
+    document.getElementById("createBtnTop").style.display = "inline-flex";
+
+    // Load user bookmarks
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      userBookmarks = userDoc.exists() ? (userDoc.data().bookmarks || []) : [];
+    } catch (_) {}
+
+    // Load debates (real-time)
+    loadDebates();
+    loadStats();
+  });
+
+  // ── Logout ──
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "../index.html";
+  });
+
+  // ── Search ──
+  document.getElementById("searchInput").addEventListener("input",
+    debounce((e) => { searchQuery = e.target.value.toLowerCase(); renderDebates(); }, 250)
+  );
+
+  // ── Filters ──
+  document.getElementById("filterBar").addEventListener("click", (e) => {
+    if (!e.target.matches(".filter-chip")) return;
+    document.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    e.target.classList.add("active");
+    activeFilter = e.target.dataset.filter;
+    renderDebates();
+  });
+
+  // ── Sort ──
+  document.getElementById("sortSelect").addEventListener("change", (e) => {
+    activeSort = e.target.value;
+    renderDebates();
+  });
+
+  // ── Load debates real-time ──
+  function loadDebates() {
+    const grid = document.getElementById("debateGrid");
+    grid.innerHTML = buildSkeletonCards(6);
+
+    const q = query(collection(db, "debates"), orderBy("createdAt", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+      allDebates = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderDebates();
+    }, (err) => {
+      console.error(err);
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><span class="empty-state-icon">😕</span><h3>Failed to load debates</h3><p>${err.message}</p></div>`;
+    });
+  }
+
+  // ── Render debates with filter/sort/search ──
+  function renderDebates() {
+    const grid = document.getElementById("debateGrid");
+
+    let filtered = allDebates.filter(d => {
+      const matchCat    = activeFilter === "all" || d.category === activeFilter;
+      const matchSearch = !searchQuery ||
+        d.title?.toLowerCase().includes(searchQuery) ||
+        d.description?.toLowerCase().includes(searchQuery) ||
+        d.category?.toLowerCase().includes(searchQuery);
+      return matchCat && matchSearch;
+    });
+
+    // Sort
+    if (activeSort === "oldest") {
+      filtered.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+    } else if (activeSort === "mostVotes") {
+      filtered.sort((a, b) => ((b.yesVotes||0)+(b.noVotes||0)) - ((a.yesVotes||0)+(a.noVotes||0)));
+    } else if (activeSort === "trending") {
+      filtered.sort((a, b) => ((b.views||0)+(b.yesVotes||0)+(b.noVotes||0)) - ((a.views||0)+(a.yesVotes||0)+(a.noVotes||0)));
+    } // default: newest (already ordered by Firestore)
+
+    document.getElementById("resultCount").textContent = `${filtered.length} debate${filtered.length !== 1 ? "s" : ""} found`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <span class="empty-state-icon">🗂️</span>
+          <h3>No debates found</h3>
+          <p>Try a different filter, or <a href="create_debate.html">create the first debate</a> in this category.</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(d => buildDebateCard(d)).join("");
+
+    // Bookmark click handlers
+    grid.querySelectorAll(".bookmark-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleBookmark(btn.dataset.id);
+      });
+    });
+
+    // Share click handlers
+    grid.querySelectorAll(".share-btn").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const url = `${location.origin}${location.pathname.replace("home.html","")}debate.html?id=${btn.dataset.id}`;
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: "DebateHub", url });
+          } else {
+            await navigator.clipboard.writeText(url);
+            showToast("Link copied to clipboard!", "success");
+          }
+        } catch (_) {}
+      });
+    });
+  }
+
+  // ── Build debate card HTML ──
+  function buildDebateCard(d) {
+    const { yes, no, total } = getVotePercents(d.yesVotes || 0, d.noVotes || 0);
+    const isBookmarked = userBookmarks.includes(d.id);
+    const status = d.status || "active";
+    const catColor = categoryColor(d.category || "Other");
+
+    return `
+      <article class="debate-card animate-in" role="article">
+        <a href="debate.html?id=${d.id}" style="display:contents; text-decoration:none;" aria-label="${d.title || 'Untitled debate'}">
+          <div class="debate-card-img-wrap">
+            <img src="${d.imageURL || '../assets/images/default.jpg'}" alt="${d.title || ''}" loading="lazy" onerror="this.src='../assets/images/default.jpg'" />
+            ${d.category ? `<span class="debate-card-category" style="background:${catColor};">${d.category}</span>` : ""}
+            <span class="debate-card-status status-${status}">${status === "active" ? "🟢 Active" : "🔴 Closed"}</span>
+          </div>
+          <div class="debate-card-body">
+            <h3 class="debate-card-title">${d.title || "Untitled"}</h3>
+            <div class="debate-card-meta">
+              <span>🕐 ${timeAgo(d.createdAt)}</span>
+              <span>💬 ${d.commentCount || 0}</span>
+              <span>👁 ${d.views || 0}</span>
+            </div>
+            <div class="debate-card-vote">
+              <div class="vote-stats">
+                <span class="vote-stat yes">✅ Yes <span class="vote-count">${yes}%</span></span>
+                <span class="vote-stat no">❌ No <span class="vote-count">${no}%</span></span>
+                <span style="margin-left:auto; font-size:0.75rem; color:var(--text-muted);">${total} votes</span>
+              </div>
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill yes" style="width:${yes}%"></div>
+              </div>
+            </div>
+          </div>
+        </a>
+        <div class="debate-card-actions">
+          <button class="debate-card-action-btn bookmark-btn ${isBookmarked ? "bookmarked" : ""}" data-id="${d.id}" aria-label="${isBookmarked ? "Remove bookmark" : "Bookmark this debate"}">
+            ${isBookmarked ? "🔖" : "📌"} ${isBookmarked ? "Saved" : "Save"}
+          </button>
+          <button class="debate-card-action-btn share-btn" data-id="${d.id}" aria-label="Share debate">
+            🔗 Share
+          </button>
+          <a href="debate.html?id=${d.id}" class="debate-card-action-btn" style="font-size:0.8rem; font-weight:600;">
+            Vote →
+          </a>
+        </div>
+      </article>
+    `;
+  }
+
+  // ── Bookmark toggle ──
+  async function toggleBookmark(debateId) {
+    if (!currentUser) return;
+    const userRef  = doc(db, "users", currentUser.uid);
+    const isBookmarked = userBookmarks.includes(debateId);
+
+    try {
+      if (isBookmarked) {
+        await updateDoc(userRef, { bookmarks: arrayRemove(debateId) });
+        userBookmarks = userBookmarks.filter(id => id !== debateId);
+        showToast("Bookmark removed", "info");
+      } else {
+        await updateDoc(userRef, { bookmarks: arrayUnion(debateId) });
+        userBookmarks.push(debateId);
+        showToast("Debate bookmarked!", "success");
+      }
+      renderDebates(); // refresh buttons
+    } catch (err) {
+      showToast("Failed to update bookmark", "error");
+    }
+  }
+
+  // ── Load platform stats ──
+  async function loadStats() {
+    try {
+      const q = collection(db, "debates");
+      const snapshot = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js")
+        .then(m => m.getDocs(q));
+
+      let totalVotes = 0, activeCount = 0, myCount = 0;
+      snapshot.docs.forEach(d => {
+        const data = d.data();
+        totalVotes  += (data.yesVotes || 0) + (data.noVotes || 0);
+        if ((data.status || "active") === "active") activeCount++;
+        if (data.createdBy === currentUser?.uid) myCount++;
+      });
+
+      document.getElementById("statTotalDebates").textContent  = snapshot.size;
+      document.getElementById("statTotalVotes").textContent    = totalVotes > 999 ? `${(totalVotes/1000).toFixed(1)}k` : totalVotes;
+      document.getElementById("statActiveDebates").textContent = activeCount;
+      document.getElementById("statMyDebates").textContent     = myCount;
+    } catch (_) {}
+  }
+</script>
+
+</body>
+</html>

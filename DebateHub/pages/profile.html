@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile – DebateHub</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  <style>
+    .profile-layout { max-width: 720px; margin: 0 auto; padding: var(--space-xl) var(--space-md); }
+
+    .profile-hero {
+      background: var(--brand-gradient);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-xl) var(--space-xl) 80px;
+      position: relative;
+      margin-bottom: 60px;
+    }
+    .profile-avatar-wrap {
+      position: absolute;
+      bottom: -50px;
+      left: var(--space-xl);
+    }
+    .profile-avatar-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid var(--bg-card);
+      overflow: hidden;
+      background: var(--brand-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      position: relative;
+    }
+    .profile-avatar-ring img { width:100%; height:100%; object-fit:cover; }
+    .avatar-upload-btn {
+      position: absolute;
+      bottom: 0; right: 0;
+      background: var(--brand-primary);
+      color: #fff;
+      border: 2px solid var(--bg-card);
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      font-size: 0.75rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    #avatarFileInput { display: none; }
+
+    .profile-hero-name {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      color: #fff;
+      font-weight: 800;
+    }
+    .profile-hero-sub { color: rgba(255,255,255,0.8); margin-top: 4px; }
+
+    .profile-body { padding-top: var(--space-md); }
+
+    .profile-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .profile-stat {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: var(--space-lg);
+      text-align: center;
+    }
+    .profile-stat-value { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; }
+    .profile-stat-label { font-size: var(--font-size-sm); color: var(--text-muted); margin-top: 4px; }
+
+    .profile-form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-xl);
+    }
+    .profile-form-card h2 { font-size: 1.2rem; margin-bottom: var(--space-xl); }
+
+    .upload-progress-wrap { margin-top: var(--space-sm); display:none; }
+
+    @media (max-width: 480px) {
+      .profile-stats-row { grid-template-columns: 1fr 1fr; }
+      .profile-hero { padding-bottom: 70px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="home.html" class="sidebar-logo">
+      <span class="sidebar-logo-icon">🗳️</span>
+      <span class="sidebar-logo-text">DebateHub</span>
+    </a>
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Discover</span>
+      <a href="home.html"          class="sidebar-link"><span class="link-icon">🏠</span> Home</a>
+      <a href="trending.html"      class="sidebar-link"><span class="link-icon">🔥</span> Trending</a>
+      <span class="sidebar-section-label">Debate</span>
+      <a href="create_debate.html" class="sidebar-link"><span class="link-icon">➕</span> Create Debate</a>
+      <a href="my-debates.html"    class="sidebar-link"><span class="link-icon">📋</span> My Debates</a>
+      <a href="bookmarks.html"     class="sidebar-link"><span class="link-icon">🔖</span> Bookmarks</a>
+      <span class="sidebar-section-label">Account</span>
+      <a href="profile.html"       class="sidebar-link active"><span class="link-icon">👤</span> Profile</a>
+      <a href="dashboard.html"     class="sidebar-link"><span class="link-icon">📊</span> Dashboard</a>
+    </nav>
+    <div class="sidebar-user" id="sidebarUser">
+      <div class="avatar avatar-sm" id="sidebarAvatar">?</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Loading…</div>
+        <div class="sidebar-user-role">Member</div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="display:flex; flex-direction:column; min-width:0;">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open menu">☰</button>
+      <h1 style="font-size:1.1rem; font-weight:700;">Profile</h1>
+      <div class="topbar-actions" style="margin-left:auto; display:flex; gap:8px;">
+        <button class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span></button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="profile-layout">
+
+        <!-- Hero -->
+        <div class="profile-hero">
+          <div class="profile-hero-name" id="heroName">Loading…</div>
+          <div class="profile-hero-sub" id="heroEmail"></div>
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar-ring" id="profileAvatarRing">?
+              <label class="avatar-upload-btn" for="avatarFileInput" title="Change photo" aria-label="Upload profile photo">📷</label>
+            </div>
+            <input type="file" id="avatarFileInput" accept="image/*" />
+          </div>
+        </div>
+
+        <div class="profile-body">
+
+          <!-- Stats -->
+          <div class="profile-stats-row">
+            <div class="profile-stat">
+              <div class="profile-stat-value" id="statDebates">–</div>
+              <div class="profile-stat-label">Debates Created</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value" id="statVotes">–</div>
+              <div class="profile-stat-label">Votes Cast</div>
+            </div>
+            <div class="profile-stat">
+              <div class="profile-stat-value" id="statRep">–</div>
+              <div class="profile-stat-label">Reputation</div>
+            </div>
+          </div>
+
+          <!-- Edit form -->
+          <div class="profile-form-card">
+            <h2>✏️ Edit Profile</h2>
+
+            <div id="profileError" style="display:none; color:var(--color-error); margin-bottom:var(--space-md); padding:10px 14px; background:rgba(239,83,80,0.08); border-radius:var(--border-radius-sm);"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="editDisplayName">Display Name</label>
+              <input type="text" id="editDisplayName" class="form-control" placeholder="Your display name" maxlength="50" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="editEmail">Email</label>
+              <input type="email" id="editEmail" class="form-control" disabled style="opacity:0.6; cursor:not-allowed;" />
+              <span style="font-size:0.75rem; color:var(--text-muted);">Email cannot be changed here</span>
+            </div>
+
+            <!-- Avatar upload progress -->
+            <div class="upload-progress-wrap" id="avatarProgressWrap">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill yes" id="avatarProgressBar" style="width:0%"></div>
+              </div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;" id="avatarProgressLabel">Uploading photo…</div>
+            </div>
+
+            <button class="btn btn-primary" id="saveProfileBtn" style="margin-top:var(--space-sm);">
+              <span id="saveBtnText">Save Changes</span>
+              <span id="saveSpinner" class="spinner-sm" style="display:none;"></span>
+            </button>
+
+          </div>
+
+          <!-- Danger zone -->
+          <div style="margin-top:var(--space-xl); background:rgba(239,83,80,0.04); border:1px solid rgba(239,83,80,0.2); border-radius:var(--border-radius-lg); padding:var(--space-lg);">
+            <h3 style="color:var(--color-error); margin-bottom:var(--space-sm);">⚠️ Sign Out</h3>
+            <p style="color:var(--text-secondary); margin-bottom:var(--space-md); font-size:var(--font-size-sm);">Sign out of your account on this device.</p>
+            <button class="btn btn-danger btn-sm" id="logoutBtn2">Sign Out</button>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, updateProfile }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc, setDoc }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+  import { initTheme, toggleTheme, showToast }
+    from "../assets/js/utils.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAGm7xBQ3BY-tUa0wKiyx9_xRtU_I-pphg",
+    authDomain: "online-voting-system-7ad10.firebaseapp.com",
+    projectId: "online-voting-system-7ad10",
+    storageBucket: "online-voting-system-7ad10.appspot.com",
+    messagingSenderId: "882341360975",
+    appId: "1:882341360975:web:0a6f2d5313d64fef2d013a"
+  };
+
+  const app     = initializeApp(firebaseConfig);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+
+  const theme = initTheme();
+  document.getElementById("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const next = toggleTheme();
+    document.getElementById("themeIcon").textContent = next === "dark" ? "☀️" : "🌙";
+  });
+
+  const sidebar = document.getElementById("sidebar");
+  document.getElementById("sidebarToggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+  document.getElementById("sidebarOverlay").addEventListener("click", () => sidebar.classList.remove("open"));
+
+  const doLogout = async () => { await signOut(auth); window.location.href = "../index.html"; };
+  document.getElementById("logoutBtn").addEventListener("click", doLogout);
+  document.getElementById("logoutBtn2").addEventListener("click", doLogout);
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "../index.html"; return; }
+
+    // Populate UI
+    const name = user.displayName || user.email.split("@")[0];
+    document.getElementById("heroName").textContent         = name;
+    document.getElementById("heroEmail").textContent        = user.email;
+    document.getElementById("editDisplayName").value        = name;
+    document.getElementById("editEmail").value              = user.email;
+    document.getElementById("sidebarName").textContent      = name;
+
+    const avatarRing = document.getElementById("profileAvatarRing");
+    const sidebarAv  = document.getElementById("sidebarAvatar");
+    function setAvatar(photoURL) {
+      if (photoURL) {
+        avatarRing.innerHTML = `<img src="${photoURL}" alt="${name}" /><label class="avatar-upload-btn" for="avatarFileInput" aria-label="Change photo">📷</label>`;
+        sidebarAv.innerHTML  = `<img src="${photoURL}" alt="${name}" />`;
+      } else {
+        avatarRing.textContent = name.charAt(0).toUpperCase();
+        avatarRing.innerHTML  += `<label class="avatar-upload-btn" for="avatarFileInput" aria-label="Change photo">📷</label>`;
+        sidebarAv.textContent  = name.charAt(0).toUpperCase();
+      }
+    }
+    setAvatar(user.photoURL);
+
+    // Load Firestore user data for stats
+    try {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      const data     = userSnap.exists() ? userSnap.data() : {};
+      document.getElementById("statDebates").textContent = data.debatesCreated || 0;
+      document.getElementById("statVotes").textContent   = data.votesCast      || 0;
+      document.getElementById("statRep").textContent     = data.reputation     || 0;
+    } catch (_) {}
+
+    // ── Avatar file upload ──
+    document.getElementById("avatarFileInput").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) { showToast("Image must be under 2MB", "error"); return; }
+
+      const progressWrap  = document.getElementById("avatarProgressWrap");
+      const progressBar   = document.getElementById("avatarProgressBar");
+      const progressLabel = document.getElementById("avatarProgressLabel");
+      progressWrap.style.display = "block";
+
+      const storageRef = ref(storage, `avatars/${user.uid}`);
+      const task       = uploadBytesResumable(storageRef, file);
+
+      task.on("state_changed",
+        (snap) => {
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+          progressBar.style.width     = pct + "%";
+          progressLabel.textContent   = `Uploading… ${pct}%`;
+        },
+        (err) => showToast("Upload failed: " + err.message, "error"),
+        async () => {
+          const url = await getDownloadURL(task.snapshot.ref);
+          await updateProfile(user, { photoURL: url });
+          await updateDoc(doc(db, "users", user.uid), { photoURL: url }).catch(() => {});
+          setAvatar(url);
+          progressLabel.textContent = "✅ Photo updated!";
+          showToast("Profile photo updated!", "success");
+        }
+      );
+    });
+
+    // ── Save profile ──
+    document.getElementById("saveProfileBtn").addEventListener("click", async () => {
+      const newName = document.getElementById("editDisplayName").value.trim();
+      if (!newName) { showToast("Name cannot be empty", "warning"); return; }
+
+      const btn  = document.getElementById("saveProfileBtn");
+      const txt  = document.getElementById("saveBtnText");
+      const spin = document.getElementById("saveSpinner");
+      btn.disabled = true; txt.textContent = "Saving…"; spin.style.display = "inline-block";
+
+      try {
+        await updateProfile(user, { displayName: newName });
+        await setDoc(doc(db, "users", user.uid), { displayName: newName }, { merge: true });
+        document.getElementById("heroName").textContent    = newName;
+        document.getElementById("sidebarName").textContent = newName;
+        showToast("Profile updated!", "success");
+      } catch (err) {
+        showToast("Update failed: " + err.message, "error");
+      } finally {
+        btn.disabled = false; txt.textContent = "Save Changes"; spin.style.display = "none";
+      }
+    });
+  });
+</script>
+</body>
+</html>

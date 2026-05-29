@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Debates – DebateHub</title>
+  <link rel="stylesheet" href="../assets/css/global.css" />
+  <link rel="stylesheet" href="../assets/css/dashboard.css" />
+  <style>
+    .my-debates-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-xl);
+      flex-wrap: wrap;
+      gap: var(--space-md);
+    }
+    .my-debates-header h1 { font-size: 1.8rem; }
+
+    /* Table layout for larger screens */
+    .debate-table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+    }
+    .debate-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .debate-table th {
+      background: var(--bg-input);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .debate-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .debate-table tr:last-child td { border-bottom: none; }
+    .debate-table tr:hover td { background: var(--bg-input); }
+
+    .debate-table-title {
+      font-weight: 600;
+      color: var(--text-primary);
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      max-width: 280px;
+    }
+    .debate-table-thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: var(--border-radius-sm);
+      flex-shrink: 0;
+    }
+    .debate-title-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .table-action-btn {
+      background: none;
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-family: var(--font-base);
+      color: var(--text-secondary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .table-action-btn:hover { background: var(--bg-input); color: var(--text-primary); text-decoration: none; }
+    .table-action-btn.danger { border-color: var(--color-error); color: var(--color-error); }
+    .table-action-btn.danger:hover { background: var(--color-error); color: #fff; }
+
+    /* Mobile card fallback */
+    .mobile-debate-list { display: none; }
+
+    @media (max-width: 768px) {
+      .debate-table-wrap  { display: none; }
+      .mobile-debate-list { display: flex; flex-direction: column; gap: var(--space-md); }
+    }
+
+    .mobile-debate-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: var(--space-md);
+      display: flex;
+      gap: var(--space-md);
+      align-items: flex-start;
+    }
+    .mobile-debate-card img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: var(--border-radius-sm);
+      flex-shrink: 0;
+    }
+    .mobile-debate-info { flex: 1; min-width: 0; }
+    .mobile-debate-info h3 { font-size: 0.95rem; margin-bottom: 4px; }
+    .mobile-debate-actions { display: flex; gap: var(--space-sm); margin-top: var(--space-sm); flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <a href="home.html" class="sidebar-logo">
+      <span class="sidebar-logo-icon">🗳️</span>
+      <span class="sidebar-logo-text">DebateHub</span>
+    </a>
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Discover</span>
+      <a href="home.html"          class="sidebar-link"><span class="link-icon">🏠</span> Home</a>
+      <a href="trending.html"      class="sidebar-link"><span class="link-icon">🔥</span> Trending</a>
+      <span class="sidebar-section-label">Debate</span>
+      <a href="create_debate.html" class="sidebar-link"><span class="link-icon">➕</span> Create Debate</a>
+      <a href="my-debates.html"    class="sidebar-link active"><span class="link-icon">📋</span> My Debates</a>
+      <a href="bookmarks.html"     class="sidebar-link"><span class="link-icon">🔖</span> Bookmarks</a>
+      <span class="sidebar-section-label">Account</span>
+      <a href="profile.html"       class="sidebar-link"><span class="link-icon">👤</span> Profile</a>
+      <a href="dashboard.html"     class="sidebar-link"><span class="link-icon">📊</span> Dashboard</a>
+    </nav>
+    <div class="sidebar-user" id="sidebarUser">
+      <div class="avatar avatar-sm" id="sidebarAvatar">?</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sidebarName">Loading…</div>
+        <div class="sidebar-user-role">Member</div>
+      </div>
+    </div>
+  </aside>
+
+  <div style="display:flex; flex-direction:column; min-width:0;">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open menu">☰</button>
+      <h1 style="font-size:1.1rem; font-weight:700;">My Debates</h1>
+      <div class="topbar-actions" style="margin-left:auto; display:flex; gap:8px;">
+        <button class="theme-toggle" id="themeToggle"><span id="themeIcon">🌙</span></button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <div class="my-debates-header">
+        <div>
+          <h1>📋 My Debates</h1>
+          <p style="color:var(--text-muted); margin-top:4px;">Debates you've created — view, manage, or delete them here.</p>
+        </div>
+        <a href="create_debate.html" class="btn btn-primary">+ New Debate</a>
+      </div>
+
+      <!-- Loading -->
+      <div id="loadingState" style="text-align:center; padding:var(--space-2xl); color:var(--text-muted);">
+        <div class="spinner-sm" style="width:32px;height:32px;margin:0 auto var(--space-md);"></div>
+        Loading your debates…
+      </div>
+
+      <!-- Desktop table -->
+      <div class="debate-table-wrap" id="tableWrap" style="display:none;">
+        <table class="debate-table" aria-label="My debates">
+          <thead>
+            <tr>
+              <th>Debate</th>
+              <th>Category</th>
+              <th>Votes</th>
+              <th>Comments</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="debateTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="mobile-debate-list" id="mobileList"></div>
+
+      <!-- Empty state -->
+      <div id="emptyState" style="display:none;">
+        <div class="empty-state">
+          <span class="empty-state-icon">📭</span>
+          <h3>No debates yet</h3>
+          <p>You haven't created any debates. Start one and get the conversation going!</p>
+          <a href="create_debate.html" class="btn btn-primary">Create Your First Debate</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal-backdrop" id="deleteModal" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title">Delete Debate</h2>
+      <button class="modal-close" id="deleteModalClose">✕</button>
+    </div>
+    <p style="color:var(--text-secondary); margin-bottom:var(--space-lg);">
+      Are you sure you want to delete <strong id="deleteDebateName"></strong>? This action cannot be undone.
+    </p>
+    <div style="display:flex; gap:var(--space-sm); justify-content:flex-end;">
+      <button class="btn btn-ghost" id="deleteCancelBtn">Cancel</button>
+      <button class="btn btn-danger" id="deleteConfirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getFirestore, collection, query, where, orderBy,
+           getDocs, deleteDoc, doc }
+    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { initTheme, toggleTheme, showToast, timeAgo, getVotePercents, categoryColor }
+    from "../assets/js/utils.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAGm7xBQ3BY-tUa0wKiyx9_xRtU_I-pphg",
+    authDomain: "online-voting-system-7ad10.firebaseapp.com",
+    projectId: "online-voting-system-7ad10",
+    storageBucket: "online-voting-system-7ad10.appspot.com",
+    messagingSenderId: "882341360975",
+    appId: "1:882341360975:web:0a6f2d5313d64fef2d013a"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const theme = initTheme();
+  document.getElementById("themeIcon").textContent = theme === "dark" ? "☀️" : "🌙";
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const next = toggleTheme();
+    document.getElementById("themeIcon").textContent = next === "dark" ? "☀️" : "🌙";
+  });
+
+  const sidebar = document.getElementById("sidebar");
+  document.getElementById("sidebarToggle").addEventListener("click", () => sidebar.classList.toggle("open"));
+  document.getElementById("sidebarOverlay").addEventListener("click", () => sidebar.classList.remove("open"));
+
+  let pendingDeleteId = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "../index.html"; return; }
+
+    const name = user.displayName || user.email.split("@")[0];
+    document.getElementById("sidebarName").textContent = name;
+    const av = document.getElementById("sidebarAvatar");
+    if (user.photoURL) av.innerHTML = `<img src="${user.photoURL}" alt="${name}"/>`;
+    else av.textContent = name.charAt(0).toUpperCase();
+
+    await loadMyDebates(user.uid);
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await signOut(auth); window.location.href = "../index.html";
+  });
+
+  async function loadMyDebates(uid) {
+    try {
+      const q        = query(collection(db, "debates"), where("createdBy","==",uid), orderBy("createdAt","desc"));
+      const snapshot = await getDocs(q);
+
+      document.getElementById("loadingState").style.display = "none";
+
+      if (snapshot.empty) {
+        document.getElementById("emptyState").style.display = "block"; return;
+      }
+
+      const debates = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderTable(debates);
+      renderMobile(debates);
+      document.getElementById("tableWrap").style.display  = "block";
+      document.getElementById("mobileList").style.display = "flex";
+
+    } catch (err) {
+      document.getElementById("loadingState").innerHTML =
+        `<p style="color:var(--color-error);">Failed to load debates: ${err.message}</p>
+         <p style="font-size:0.85rem;color:var(--text-muted);margin-top:8px;">
+           If this is a Firestore index error,
+           <a href="https://console.firebase.google.com/project/online-voting-system-7ad10/firestore/indexes" target="_blank">
+             click here to create the required index
+           </a>.
+         </p>`;
+    }
+  }
+
+  function renderTable(debates) {
+    const tbody = document.getElementById("debateTableBody");
+    tbody.innerHTML = debates.map(d => {
+      const total = (d.yesVotes||0)+(d.noVotes||0);
+      const cat   = d.category || "Other";
+      const color = categoryColor(cat);
+      return `
+        <tr>
+          <td>
+            <div class="debate-title-cell">
+              <img class="debate-table-thumb"
+                src="${d.imageURL||'../assets/images/default.jpg'}"
+                alt=""
+                onerror="this.src='../assets/images/default.jpg'" />
+              <span class="debate-table-title">${d.title||"Untitled"}</span>
+            </div>
+          </td>
+          <td><span class="badge" style="background:${color}20;color:${color};">${cat}</span></td>
+          <td><strong>${total}</strong></td>
+          <td>${d.commentCount||0}</td>
+          <td>
+            <span class="badge ${d.status==='active'?'badge-success':'badge-error'}">
+              ${d.status==='active'?'Active':'Closed'}
+            </span>
+          </td>
+          <td style="white-space:nowrap;">${timeAgo(d.createdAt)}</td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <a href="debate.html?id=${d.id}" class="table-action-btn">👁 View</a>
+              <button class="table-action-btn danger" onclick="confirmDelete('${d.id}','${(d.title||'').replace(/'/g,"\\'")}')">🗑 Delete</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+  }
+
+  function renderMobile(debates) {
+    const list = document.getElementById("mobileList");
+    list.innerHTML = debates.map(d => {
+      const total = (d.yesVotes||0)+(d.noVotes||0);
+      return `
+        <div class="mobile-debate-card">
+          <img src="${d.imageURL||'../assets/images/default.jpg'}" alt="" onerror="this.src='../assets/images/default.jpg'" />
+          <div class="mobile-debate-info">
+            <h3>${d.title||"Untitled"}</h3>
+            <div style="font-size:0.78rem;color:var(--text-muted);">${timeAgo(d.createdAt)} · ${total} votes</div>
+            <span class="badge ${d.status==='active'?'badge-success':'badge-error'}" style="margin-top:4px;">${d.status||'active'}</span>
+            <div class="mobile-debate-actions">
+              <a href="debate.html?id=${d.id}" class="table-action-btn">👁 View</a>
+              <button class="table-action-btn danger" onclick="confirmDelete('${d.id}','${(d.title||'').replace(/'/g,"\\'")}')">🗑 Delete</button>
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  // ── Delete flow ──
+  window.confirmDelete = function(id, title) {
+    pendingDeleteId = id;
+    document.getElementById("deleteDebateName").textContent = title;
+    document.getElementById("deleteModal").classList.add("open");
+  };
+
+  document.getElementById("deleteModalClose").addEventListener("click", closeDeleteModal);
+  document.getElementById("deleteCancelBtn").addEventListener("click", closeDeleteModal);
+  document.getElementById("deleteModal").addEventListener("click", (e) => {
+    if (e.target === document.getElementById("deleteModal")) closeDeleteModal();
+  });
+
+  function closeDeleteModal() {
+    document.getElementById("deleteModal").classList.remove("open");
+    pendingDeleteId = null;
+  }
+
+  document.getElementById("deleteConfirmBtn").addEventListener("click", async () => {
+    if (!pendingDeleteId) return;
+    const btn = document.getElementById("deleteConfirmBtn");
+    btn.disabled = true; btn.textContent = "Deleting…";
+    try {
+      await deleteDoc(doc(db, "debates", pendingDeleteId));
+      showToast("Debate deleted", "success");
+      closeDeleteModal();
+      // Reload
+      const user = auth.currentUser;
+      if (user) await loadMyDebates(user.uid);
+    } catch (err) {
+      showToast("Delete failed: " + err.message, "error");
+    } finally {
+      btn.disabled = false; btn.textContent = "Delete";
+    }
+  });
+</script>
+</body>
+</html>
