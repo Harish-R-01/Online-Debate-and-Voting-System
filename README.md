@@ -22,4 +22,4 @@ A web-based platform that enables users to create, participate in, and vote on d
 
 ## Demo
 
-🔗 Live Demo: 
+🔗 Live Demo: https://harish-r-01.github.io/Online-Debate-and-Voting-System/DebateHub
